@@ -1,0 +1,7 @@
+* working-tree-encoding=ISO8859-1
+*.c     filter=ebcdic
+*.h     filter=ebcdic
+*.txt   filter=ebcdic
+Makefile filter=ebcdic
+
+.gitattributes -filter 

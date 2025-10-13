@@ -1,0 +1,7 @@
+*.0
+*.dbg
+
+grade
+project1
+!/project1/
+!/project1/**
