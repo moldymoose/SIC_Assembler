@@ -13,8 +13,6 @@ typedef struct symbol {
 
 typedef SYMBOL* SYMTAB;
 
-char* search = " \t\n\r";
-
 const char* DIRECTIVES[] = {"START", "END", "BYTE", "WORD", "RESB", "RESW", "RESR", "EXPORT"};
 
 const char* INSTRUCTIONS[] = {"ADD", "AND", "COMP", "DIV", "J", "JEQ", "JLT", "JSUB", "LDA", "LDCH", "LDL", "LDX", "MUL", "OR", "RD", "RSUB", "STA", "STCH", "STL", "STSW", "STX", "SUB", "TD", "TIX", "WD"};
@@ -47,6 +45,6 @@ int same_word(const char* a, const char* b);
 
 int get_integer(char** line, int* integer);
 
-void strip_newline(unsigned char* line);
+void strip_newline(char* line);
 
 void dangle_free(void** ptr);
