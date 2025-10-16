@@ -1,5 +1,7 @@
 #include "headers.h"
 
+const char* INSTRUCTIONS[] = {"ADD", "AND", "COMP", "DIV", "J", "JEQ", "JLT", "JSUB", "LDA", "LDCH", "LDL", "LDX", "MUL", "OR", "RD", "RSUB", "STA", "STCH", "STL", "STSW", "STX", "SUB", "TD", "TIX", "WD"};
+
 int is_instruction(char* token){
 
     size_t n = sizeof(INSTRUCTIONS) / sizeof(INSTRUCTIONS[0]); // gives the number of elements in the array

@@ -1,5 +1,7 @@
 #include "headers.h"
 
+const char* DIRECTIVES[] = {"START", "END", "BYTE", "WORD", "RESB", "RESW", "RESR", "EXPORT"};
+
 int is_directive(char* token){
 
     size_t n = sizeof(DIRECTIVES) / sizeof(DIRECTIVES[0]); // gives the number of elements in the array
