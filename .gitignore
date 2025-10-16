@@ -1,7 +1,5 @@
-*.0
+*.o
 *.dbg
 
 grade
-project1
-!/project1/
-!/project1/**
+/roject1/project1
