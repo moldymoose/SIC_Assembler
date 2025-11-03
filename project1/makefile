@@ -1,8 +1,8 @@
-CC = xlc
-CFLAGS = -q64
+CC = gcc
+CFLAGS = -m64
 
 
-SRC = main.c print_table.c insert_symbol.c symbol_exists.c destroy_table.c is_instruction.c is_directive.c parse_line.c get_token.c get_address.c print_error.c get_constant.c same_word.c get_integer.c strip_newline.c dangle_free.c
+SRC = main.c print_table.c insert_symbol.c symbol_exists.c destroy_table.c is_instruction.c is_directive.c parse_line.c get_token.c get_address.c print_error.c get_constant.c same_word.c get_integer.c strip_newline.c dangle_free.c get_program_length.c get_program_start.c get_program_end.c
 OBJ = $(SRC:.c=.o)
 DBG = $(SRC:.c=.dbg)
 

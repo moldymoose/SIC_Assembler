@@ -2,6 +2,9 @@
 
 int main(int argc, char* argv[]) {
     FILE* fp;
+    FILE* obj;
+    char objFilename[256];
+
     int lineNumber = 1;
     int instructionNumber = 0;
     char line[1024];
@@ -55,10 +58,26 @@ int main(int argc, char* argv[]) {
         fclose(fp);
         return -1;
     }
+
+    // rewind file pointer back to beginning for second pass
+    rewind(fp);
+
+    snprintf(objFilename, sizeof(objFilename), "%s.obj", argv[1]);
+    obj = fopen(objFilename, "w");
+
+    if (obj == NULL) {
+        printf("FILE ERROR: %s could not be opened for writing\n", objFilename);
+        return -1;
+    }
+
+
+    fprintf(obj, "Program length: %X\n", get_program_length(table));
+    while(fgets(line, sizeof(line), fp) != NULL) {
+        strip_newline(line);
+    }
     
-    // print and destroy table
-    print_table(table);
     destroy_table(&table);
     fclose(fp);
+    fclose(obj);
     return 0;
 }

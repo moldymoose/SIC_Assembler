@@ -46,4 +46,10 @@ void strip_newline(char* line);
 
 void dangle_free(void** ptr);
 
+int get_program_start(SYMTAB table);
+
+int get_program_end(SYMTAB table);
+
+int get_program_length(SYMTAB table);
+
 #endif
