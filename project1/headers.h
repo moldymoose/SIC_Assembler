@@ -32,9 +32,9 @@ char* get_token(char** line);
 
 int get_address(char** line, int* address);
 
-int get_constant(char** line, int* constant, int* size);
+int get_constant(char** line, char* constant, int* size);
 
-int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, int* instructionNumber, int* endFlag);
+int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, int* instructionNumber, int* endFlag, FILE* obj, int pass);
 
 void print_error(char* line, int line_number, char* msg);
 
@@ -51,5 +51,9 @@ int get_program_start(SYMTAB table);
 int get_program_end(SYMTAB table);
 
 int get_program_length(SYMTAB table);
+
+void write_record(FILE* obj, SYMTAB table,  char* symbol, char* inst, int address, char* constant, int size);
+
+void string_to_hex(char* constant, char* string);
 
 #endif

@@ -1,8 +1,9 @@
 #include "headers.h"
 
-int get_constant(char** line, int* constant, int* size) {
+int get_constant(char** line, char* constant, int* size) {
     char* p = *line;
     *size = 0;
+    char string[128];
 
     while(*p != '\0' && isspace(*p)) {
         p++;
@@ -12,15 +13,19 @@ int get_constant(char** line, int* constant, int* size) {
         p++;
         if(*p == '\'') {
             p++;
+            int i = 0;
             while(*p != '\'' && *p != '\0') {
-                *constant = (*constant << 8) | (unsigned char)*p;
+                string[i] = (char) *p;
+                i++;
                 p++;
                 *size += sizeof(char);
             }
+            string[i] = '\0';
             if(*p == '\0') {
                 return 0;
             } else {
                 p++;
+                string_to_hex(constant, string);
             }
         } else {
             return 0;
@@ -31,7 +36,7 @@ int get_constant(char** line, int* constant, int* size) {
             p++;
             int val = (int)strtol(p, &p, 16);
             int digits = 0;
-            *constant = val;
+            sprintf(constant, "%X", val);
             do {
                 digits++;
                 val >>=4;

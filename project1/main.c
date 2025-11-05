@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
         strip_newline(line);
 
         // attempts to parse the line, increments line number
-        if(parse_line(&table, line, lineNumber, &locationCounter, &instructionNumber, &endFlag)) {
+        if(parse_line(&table, line, lineNumber, &locationCounter, &instructionNumber, &endFlag, obj, 1)) {
             // make sure program is still within valid SIC memory;
             if(locationCounter <= 32768) {
                 lineNumber++;
@@ -59,8 +59,15 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
+    print_table(table);
+
     // rewind file pointer back to beginning for second pass
     rewind(fp);
+    lineNumber = 1;
+    locationCounter = 0;
+    instructionNumber = 0;
+    endFlag = 0;
+
 
     snprintf(objFilename, sizeof(objFilename), "%s.obj", argv[1]);
     obj = fopen(objFilename, "w");
@@ -70,12 +77,14 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-
-    fprintf(obj, "Program length: %X\n", get_program_length(table));
     while(fgets(line, sizeof(line), fp) != NULL) {
         strip_newline(line);
+        if(parse_line(&table, line, lineNumber, &locationCounter, &instructionNumber, &endFlag, obj, 2)) {
+           ;
+            // line valid
+        }
     }
-    
+
     destroy_table(&table);
     fclose(fp);
     fclose(obj);

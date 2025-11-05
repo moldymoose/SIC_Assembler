@@ -1,10 +1,11 @@
 #include "headers.h"
 
-int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, int* instructionNumber, int* endFlag) {
+int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, int* instructionNumber, int* endFlag, FILE* obj, int pass) {
   char* p = line;                   // pointer to current character parser is on
   char msg[256];                    // error message
   char* symbol = NULL;
   char* inst = NULL;                // stores instruction (or directive)
+  int address = *locationCounter;   // stores location of instruction (for pass 2)
 
   // Check for comment
   if(*p == '#') {
@@ -37,7 +38,8 @@ int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, 
       return 0;
   }
 
-  if(symbol != NULL) {
+  // we only care about adding symbols if we're on pass 1
+  if((symbol != NULL) && (pass == 1)){
   // Check if symbol exists before adding to table
       if(!symbol_exists(*table, symbol)) {
   // Check if symbol is instruction or directive before adding to table
@@ -62,26 +64,33 @@ int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, 
 
   // Handle directives
   if(is_directive(inst)) {
-      int constant, size;
+      int size;
+      char constant[256] = "";
+      int integer;
+
       if(same_word(inst, "START")) {
           // If START appears as first directive the location counter is moved for the first symbol
           if(*instructionNumber == 0) {
               // Verify START directive is provided valid hexidecimal address
               if (get_address(&p, locationCounter)) {
-                  (*table)->address = *locationCounter;
+                  if(pass == 1) {
+                      // update first start address if you're on pass 1
+                      (*table)->address = *locationCounter;
+                  }
               } else {
                   print_error(line, lineNumber, "START directive recieved invalid operand.");
                   dangle_free((void**)&inst);
                   return 0;
               }
-          } else {
+          } else if (pass == 1) {
               print_error(line, lineNumber, "START directive must occur at begining of program.");
               dangle_free((void**)&inst);
               return 0;
           }
       } else if(same_word(inst, "BYTE")) {
+          printf("remainder of line is--- %s\n", p);
           // Verify BYTE directive is provided valid character or hex constant
-          if(get_constant(&p, &constant, &size)) {
+          if(get_constant(&p, constant, &size)) {
               *locationCounter += size;
           } else {
               print_error(line, lineNumber, "BYTE directive was not provided valid constant.");
@@ -90,11 +99,13 @@ int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, 
           }
       } else if(same_word(inst, "WORD")) {
           // Verify WORD directive is provided valid integer value
-          if(get_integer(&p, &constant)) {
-              if(constant >= -8388608 && constant <= 8388607) {
-                  *locationCounter += 3;
+          if(get_integer(&p, &integer)) {
+              if(integer >= -8388608 && integer <= 8388607) {
+                  size = 3;
+                  sprintf(constant, "%06X", integer);
+                  *locationCounter += size;
               } else {
-                  snprintf(msg, sizeof(msg), "%d cannot be represented with a 24-bit signed integer.", constant);
+                  snprintf(msg, sizeof(msg), "%d cannot be represented with a 24-bit signed integer.", integer);
                   print_error(line, lineNumber, msg);
                   dangle_free((void**)&inst);
                   return 0;
@@ -107,8 +118,8 @@ int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, 
           }
       } else if(same_word(inst, "RESB")) {
           // Verify RESB directive is provided valid integer value
-          if(get_integer(&p, &constant)) {
-              *locationCounter += constant;
+          if(get_integer(&p, &integer)) {
+              *locationCounter += integer;
           } else {
               print_error(line, lineNumber, "RESB directive was not provided valid number of bytes.");
               dangle_free((void**)&inst);
@@ -116,8 +127,8 @@ int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, 
           }
       } else if(same_word(inst, "RESW")) {
           // Verify RESW directive is provided valid integer value
-          if(get_integer(&p, &constant)) {
-              *locationCounter += (constant * 3);
+          if(get_integer(&p, &integer)) {
+              *locationCounter += (integer * 3);
           } else {
               print_error(line, lineNumber, "RESW directive was not provided valid number of words.");
               dangle_free((void**)&inst);
@@ -139,7 +150,10 @@ int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, 
           dangle_free((void**)&label);
           *endFlag = 1;
       }
-      // Instructions increment location counter by 3 bytes
+      if (pass == 2) {
+          write_record(obj, *table,  symbol, inst, address, constant, size);
+      }
+  // Instructions increment location counter by 3 bytes
   } else if(is_instruction(inst)) {
       *locationCounter += 3;
       dangle_free((void**)&inst);

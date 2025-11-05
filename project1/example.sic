@@ -1,0 +1,12 @@
+TEST    START   4000		  
+SRC     BYTE    C'TEST STRING'
+ELEVEN  WORD    11		
+LOOP    LDX     ZERO
+        LDCH    SRC,X		
+        STCH    DST,X	
+        TIX     ELEVEN
+        JLT     LOOP
+		J		FIN
+ZERO    WORD    0
+DST     RESB    11		
+FIN     END     LOOP
