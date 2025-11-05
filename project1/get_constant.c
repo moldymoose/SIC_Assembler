@@ -25,7 +25,9 @@ int get_constant(char** line, char* constant, int* size) {
                 return 0;
             } else {
                 p++;
-                string_to_hex(constant, string);
+                char* newString = toAscii(string);
+                string_to_hex(constant, newString);
+                free(newString);
             }
         } else {
             return 0;

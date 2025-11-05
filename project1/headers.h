@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <iconv.h>
+#include <errno.h>
 
 
 typedef struct symbol {
@@ -55,5 +57,7 @@ int get_program_length(SYMTAB table);
 void write_record(FILE* obj, SYMTAB table,  char* symbol, char* inst, int address, char* constant, int size);
 
 void string_to_hex(char* constant, char* string);
+
+char *toAscii(const char *string);
 
 #endif
