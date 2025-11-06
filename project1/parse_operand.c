@@ -16,7 +16,7 @@ int parse_operand(SYMTAB table, char* operand, int* op_address) {
     if(label = symbol_exists(table, symbol)) {
         *op_address = label->address;
     } else {
-        printf("symbol %s no exist\n", symbol);
+        printf("ASSEMBLY ERROR: Symbol %s does not exist in file.\n", symbol);
         return 0;
     }
 

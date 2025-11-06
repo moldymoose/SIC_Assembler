@@ -13,6 +13,7 @@ int main(int argc, char* argv[]) {
     int locationCounter = 0;
     int firstInstruction; //location of the first executable instruction
     int endFlag = 0;    // End directive has not been seen yet.
+    int startFlag = 0;  // Start directive has not been seen yet.
 
     SYMTAB table = NULL;
     MODTAB mod_table = NULL;
@@ -35,7 +36,7 @@ int main(int argc, char* argv[]) {
         strip_newline(line);
 
         // attempts to parse the line, increments line number
-        if(parse_line(&table, &mod_table, line, lineNumber, &locationCounter, &nonComments, &instructionNumber, &firstInstruction, &endFlag, obj, 1)) {
+        if(parse_line(&table, &mod_table, line, lineNumber, &locationCounter, &nonComments, &instructionNumber, &firstInstruction, &endFlag, &startFlag, obj, 1)) {
             // make sure program is still within valid SIC memory;
             if(locationCounter <= 32768) {
                 lineNumber++;
@@ -53,6 +54,12 @@ int main(int argc, char* argv[]) {
             return -1;
         }
     }
+    if(startFlag == 0) {
+        printf("ASSEMBLY ERROR: <Program has no START directive.>\n");
+        destroy_table(&table);
+        fclose(fp);
+        return -1;
+    }
 
     // verify END directive exists in program
     if(endFlag == 0) {
@@ -61,8 +68,6 @@ int main(int argc, char* argv[]) {
         fclose(fp);
         return -1;
     }
-
-    print_table(table);
 
     // rewind file pointer back to beginning for second pass
     rewind(fp);
@@ -78,20 +83,28 @@ int main(int argc, char* argv[]) {
 
     if (obj == NULL) {
         printf("FILE ERROR: %s could not be opened for writing\n", objFilename);
+        fclose(fp);
+        destroy_table(&table);
         return -1;
     }
 
     while(fgets(line, sizeof(line), fp) != NULL) {
         strip_newline(line);
-        if(parse_line(&table, &mod_table, line, lineNumber, &locationCounter, &nonComments, &instructionNumber, &firstInstruction, &endFlag, obj, 2)) {
-           ;
-            // line valid
+        // if pass 2 encounters error destroy table, close files, delete object file and exit
+        if(!parse_line(&table, &mod_table, line, lineNumber, &locationCounter, &nonComments, &instructionNumber, &firstInstruction, &endFlag, &startFlag, obj, 2)) {
+            destroy_table(&table);
+            destroy_mod_table(&mod_table);
+            fclose(fp);
+            fclose(obj);
+            remove(objFilename);
+            return -1;
         }
     }
     print_mod_table(obj, mod_table, get_program_start(table));
     print_erecord(obj, firstInstruction);
 
     destroy_table(&table);
+    destroy_mod_table(&mod_table);
     fclose(fp);
     fclose(obj);
     return 0;

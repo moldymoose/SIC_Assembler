@@ -1,6 +1,6 @@
 #include "headers.h"
 
-int parse_line(SYMTAB* table, MODTAB* mod_table, char* line, int lineNumber, int* locationCounter, int* nonComments, int* instructionNumber, int* firstInstruction, int* endFlag, FILE* obj, int pass) {
+int parse_line(SYMTAB* table, MODTAB* mod_table, char* line, int lineNumber, int* locationCounter, int* nonComments, int* instructionNumber, int* firstInstruction, int* endFlag, int* startFlag, FILE* obj, int pass) {
   char* p = line;                   // pointer to current character parser is on
   char msg[256];                    // error message buffer
   char* symbol = NULL;
@@ -70,6 +70,7 @@ int parse_line(SYMTAB* table, MODTAB* mod_table, char* line, int lineNumber, int
   // Handle directives
   if(is_directive(inst)) {
       if(same_word(inst, "START")) {
+          *startFlag = 1;
           // If START appears as first directive the location counter is moved for the first symbol
           if(*nonComments== 0) {
               // Verify START directive is provided valid hexidecimal address
@@ -168,14 +169,21 @@ int parse_line(SYMTAB* table, MODTAB* mod_table, char* line, int lineNumber, int
           if(same_word(inst, "RSUB")) {
               if(operand != NULL) {
                   print_error(line, lineNumber, "RSUB should not be passed an operand)");
+                  dangle_free((void**)&symbol);
+                  dangle_free((void**)&operand);
+                  dangle_free((void**)&inst);
+                  return 0;
+              } else {
+                  op_address = 0;
               }
           } else if(!parse_operand(*table, operand, &op_address)) {
               dangle_free((void**)&symbol);
               dangle_free((void**)&operand);
               dangle_free((void**)&inst);
               return 0;
+          } else {
+              *mod_table = insert_mrecord(*mod_table, address + 1);
           }
-          *mod_table = insert_mrecord(*mod_table, address + 1);
       }
   // Print error for invalid instruction/directive
   } else {

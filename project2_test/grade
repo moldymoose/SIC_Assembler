@@ -1,5 +1,4 @@
 #!/usr/bin/sh
-cp ../p2sic/*.sic . -f
 
 echo ----------------------------------------------------------------
 echo ----------------------------------------------------------------
@@ -14,13 +13,13 @@ echo Testing with Correct SIC Assembly
 ./project2 test21.sic
 
 echo ----------TEST 21 Object File-------------------------------------------
-less test21.sic.obj
+cat test21.sic.obj
 echo ----------------------------------------------------------------
 echo Testing case 2  SIC Program to copy a string using indexed addressing
 ./project2 test22.sic
 echo ----------TEST 22 Object File-------------------------------------------
 
-less test22.sic.obj
+cat test22.sic.obj
 echo ----------------------------------------------------------------
 echo Testing case 3  SIC Program Has  Invalid Hex Constant  
 ./project2 test23.sic
@@ -30,7 +29,7 @@ echo Testing case 4  SIC Program HasSymbol Name that is an assembler Directive B
 echo ----------------------------------------------------------------
 echo Testing case 5  SIC Program Missing START DIRECTIVE   
 ./project2 test25.sic
-less test25.sic.obj
+cat test25.sic.obj
 echo ----------------------------------------------------------------
 echo Testing case 6  Long Byte Constant that is ok.  Has undefined symbol, Pass 2 should stop  
 ./project2 test26.sic
@@ -38,20 +37,20 @@ echo ----------------------------------------------------------------
 echo Testing case 7 
 ./project2 test27.sic
 echo ----------TEST 27 Object File-------------------------------------------
-less test27.sic.obj
+cat test27.sic.obj
 echo ----------------------------------------------------------------
 echo Testing case 8
 ./project2 test28.sic
 echo ----------TEST 28 Object File-------------------------------------------
-less test28.sic.obj
+cat test28.sic.obj
 echo ----------------------------------------------------------------
 echo Testing case 9   
 ./project2 test29.sic
 echo ----------TEST 29 Object File-------------------------------------------
-less test29.sic.obj
+cat test29.sic.obj
 echo ----------------------------------------------------------------
 echo Testing case 10  
 ./project2 test30.sic
 echo ----------TEST 30 Object File-------------------------------------------
-less test30.sic.obj
+cat test30.sic.obj
 

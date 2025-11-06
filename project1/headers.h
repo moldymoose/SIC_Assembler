@@ -40,7 +40,7 @@ int get_address(char** line, int* address);
 
 int get_constant(char** line, char* constant, int* size);
 
-int parse_line(SYMTAB* table, MODTAB* mod_table, char* line, int lineNumber, int* locationCounter, int* numComments, int* instructionNumber, int* firstInstruction, int* endFlag, FILE* obj, int pass);
+int parse_line(SYMTAB* table, MODTAB* mod_table, char* line, int lineNumber, int* locationCounter, int* numComments, int* instructionNumber, int* firstInstruction, int* endFlag, int* startFlag, FILE* obj, int pass);
 
 void print_error(char* line, int line_number, char* msg);
 
@@ -71,5 +71,7 @@ MODTAB insert_mrecord(MODTAB table, int addr);
 void print_mod_table(FILE* obj, MODTAB table, SYMBOL* start);
 
 void print_erecord(FILE* obj, int firstInstruction);
+
+void destroy_mod_table(MODTAB* table);
 
 #endif

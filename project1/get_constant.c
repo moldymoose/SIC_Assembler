@@ -51,6 +51,11 @@ int get_constant(char** line, char* constant, int* size) {
         } else {
             return 0;
         }
+        // Ensures constant is whole bytes
+        if (strlen(constant) % 2 != 0) {
+            memmove(constant + 1, constant, strlen(constant) + 1);
+            constant[0] = '0';
+        }
     }
     
     // consume trailing whitespace
