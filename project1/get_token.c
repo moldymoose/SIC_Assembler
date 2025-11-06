@@ -6,10 +6,10 @@ char* get_token(char** line) {
     char* token;
     int len;
 
-    while(*p != '\0' && isspace(*p)) {
+    while(isspace(*p)) {
         p++;
     }
-    if(*p == '\0') {
+    if(*p == '\0' || *p == '#') {
         return NULL;
     }
     start = p;
@@ -22,7 +22,7 @@ char* get_token(char** line) {
     strncpy(token, start, len);
     token[len] = '\0';
 
-    while(*p != '\0' && isspace(*p)) {
+    while(isspace(*p)) {
         p++;
     }
     *line = p;

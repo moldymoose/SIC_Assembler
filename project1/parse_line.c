@@ -157,7 +157,6 @@ int parse_line(SYMTAB* table, MODTAB* mod_table, char* line, int lineNumber, int
   // Instructions increment location counter by 3 bytes
   } else if(is_instruction(inst)) {
       if (*instructionNumber == 0) {
-          printf("first Instruction at %06x\n", address);
           *firstInstruction = address;
       }
       (*instructionNumber)++;
@@ -166,7 +165,11 @@ int parse_line(SYMTAB* table, MODTAB* mod_table, char* line, int lineNumber, int
       operand = get_token(&p);
       
       if(pass == 2) {
-          if(!parse_operand(*table, operand, &op_address)) {
+          if(same_word(inst, "RSUB")) {
+              if(operand != NULL) {
+                  print_error(line, lineNumber, "RSUB should not be passed an operand)");
+              }
+          } else if(!parse_operand(*table, operand, &op_address)) {
               dangle_free((void**)&symbol);
               dangle_free((void**)&operand);
               dangle_free((void**)&inst);

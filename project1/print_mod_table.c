@@ -6,6 +6,6 @@ void print_mod_table(FILE* obj, MODTAB table, SYMBOL* start) {
         return;
     } else {
         print_mod_table(obj, table->next, start);
-        fprintf(obj, "M%06X 04+%s\n", table->start_address, start->name);
+        fprintf(obj, "M%06X04+%s\n", table->start_address, start->name);
     }
 }
