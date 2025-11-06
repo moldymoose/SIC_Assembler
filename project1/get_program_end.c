@@ -1,11 +1,11 @@
 #include "headers.h"
 
-int get_program_end(SYMTAB table) {
+SYMBOL* get_program_end(SYMTAB table) {
     if (table == NULL) {
         printf("ERROR: Table Empty");
-        return 0;
+        return table;
     }
     else {
-        return table->address;
+        return table;
     }
 }

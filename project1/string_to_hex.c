@@ -10,5 +10,4 @@ void string_to_hex(char* constant, char* string) {
         strcat(constant, byte);
         p++;
     }
-    printf("converted %s to %s\n", string, constant);
 }
