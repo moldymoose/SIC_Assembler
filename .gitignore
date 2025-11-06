@@ -1,5 +1,6 @@
 *.o
 *.dbg
 *.obj
+*.swp
 
 /project1/project1
