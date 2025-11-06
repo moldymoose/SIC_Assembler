@@ -10,14 +10,14 @@ void write_record(FILE* obj, SYMTAB table, MODTAB mods, char* symbol, char* inst
         } else if (same_word(inst, "BYTE") || same_word(inst, "WORD")) {
             char* string = constant;
             while (size > 30) {
-                fprintf(obj, "T%06X %02X %.60s\n",address,30,string);
+                fprintf(obj, "T%06X%02X%.60s\n",address,30,string);
                 string += 60;
                 address += 30;
                 size -= 30;
             }
-            fprintf(obj, "T%06X %02X %.60s\n",address,size,string);
+            fprintf(obj, "T%06X%02X%.60s\n",address,size,string);
         }
     } else if (is_instruction(inst)) {
-        fprintf(obj, "T%06X %02X %02X %0X\n",address,size,get_opcode(inst), op_address);
+        fprintf(obj, "T%06X%02X%02X%0X\n",address,size,get_opcode(inst), op_address);
     }
 }

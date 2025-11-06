@@ -1,6 +1,6 @@
 #include "headers.h"
 
-int parse_line(SYMTAB* table, MODTAB* mod_table, char* line, int lineNumber, int* locationCounter, int* instructionNumber, int* endFlag, FILE* obj, int pass) {
+int parse_line(SYMTAB* table, MODTAB* mod_table, char* line, int lineNumber, int* locationCounter, int* nonComments, int* instructionNumber, int* firstInstruction, int* endFlag, FILE* obj, int pass) {
   char* p = line;                   // pointer to current character parser is on
   char msg[256];                    // error message buffer
   char* symbol = NULL;
@@ -71,7 +71,7 @@ int parse_line(SYMTAB* table, MODTAB* mod_table, char* line, int lineNumber, int
   if(is_directive(inst)) {
       if(same_word(inst, "START")) {
           // If START appears as first directive the location counter is moved for the first symbol
-          if(*instructionNumber == 0) {
+          if(*nonComments== 0) {
               // Verify START directive is provided valid hexidecimal address
               if (get_address(&p, locationCounter)) {
                   if(pass == 1) {
@@ -156,6 +156,11 @@ int parse_line(SYMTAB* table, MODTAB* mod_table, char* line, int lineNumber, int
       }
   // Instructions increment location counter by 3 bytes
   } else if(is_instruction(inst)) {
+      if (*instructionNumber == 0) {
+          printf("first Instruction at %06x\n", address);
+          *firstInstruction = address;
+      }
+      (*instructionNumber)++;
       size = 3;
       *locationCounter += size;
       operand = get_token(&p);
@@ -190,7 +195,7 @@ int parse_line(SYMTAB* table, MODTAB* mod_table, char* line, int lineNumber, int
       return 0;
   }
 
-  (*instructionNumber)++; // We've seen an instruction
+  (*nonComments)++; // We've seen a valid line
   dangle_free((void**)&symbol);
   dangle_free((void**)&inst);
   dangle_free((void**)&operand);

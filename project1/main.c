@@ -7,9 +7,11 @@ int main(int argc, char* argv[]) {
 
     int lineNumber = 1;
     int instructionNumber = 0;
+    int nonComments = 0;
     char line[1024];
 
     int locationCounter = 0;
+    int firstInstruction; //location of the first executable instruction
     int endFlag = 0;    // End directive has not been seen yet.
 
     SYMTAB table = NULL;
@@ -33,7 +35,7 @@ int main(int argc, char* argv[]) {
         strip_newline(line);
 
         // attempts to parse the line, increments line number
-        if(parse_line(&table, &mod_table, line, lineNumber, &locationCounter, &instructionNumber, &endFlag, obj, 1)) {
+        if(parse_line(&table, &mod_table, line, lineNumber, &locationCounter, &nonComments, &instructionNumber, &firstInstruction, &endFlag, obj, 1)) {
             // make sure program is still within valid SIC memory;
             if(locationCounter <= 32768) {
                 lineNumber++;
@@ -66,6 +68,7 @@ int main(int argc, char* argv[]) {
     rewind(fp);
     lineNumber = 1;
     locationCounter = 0;
+    nonComments = 0;
     instructionNumber = 0;
     endFlag = 0;
 
@@ -80,13 +83,13 @@ int main(int argc, char* argv[]) {
 
     while(fgets(line, sizeof(line), fp) != NULL) {
         strip_newline(line);
-        if(parse_line(&table, &mod_table, line, lineNumber, &locationCounter, &instructionNumber, &endFlag, obj, 2)) {
+        if(parse_line(&table, &mod_table, line, lineNumber, &locationCounter, &nonComments, &instructionNumber, &firstInstruction, &endFlag, obj, 2)) {
            ;
             // line valid
         }
     }
-    fprintf(obj, "\n");
     print_mod_table(obj, mod_table, get_program_start(table));
+    print_erecord(obj, firstInstruction);
 
     destroy_table(&table);
     fclose(fp);
