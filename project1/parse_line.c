@@ -1,11 +1,17 @@
 #include "headers.h"
 
-int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, int* instructionNumber, int* endFlag, FILE* obj, int pass) {
+int parse_line(SYMTAB* table, MODTAB* mod_table, char* line, int lineNumber, int* locationCounter, int* nonComments, int* instructionNumber, int* firstInstruction, int* endFlag, FILE* obj, int pass) {
   char* p = line;                   // pointer to current character parser is on
-  char msg[256];                    // error message
+  char msg[256];                    // error message buffer
   char* symbol = NULL;
   char* inst = NULL;                // stores instruction (or directive)
-  int address = *locationCounter;   // stores location of instruction (for pass 2)
+  char* operand = NULL;             // stores operand for instructions
+  
+  int address = *locationCounter;   // address of current instruction
+
+  int size;                         // stores size of object code (in bytes)
+  char constant[256] = "";          // byte array from constant
+  int op_address;
 
   // Check for comment
   if(*p == '#') {
@@ -51,7 +57,6 @@ int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, 
               return 0;
           } else {
               *table = insert_symbol(*table, symbol, *locationCounter, lineNumber);
-              dangle_free((void**)&symbol);
           }
       } else {
           snprintf(msg, sizeof(msg), "Label: %s already exists in symbol table.", symbol);
@@ -64,13 +69,9 @@ int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, 
 
   // Handle directives
   if(is_directive(inst)) {
-      int size;
-      char constant[256] = "";
-      int integer;
-
       if(same_word(inst, "START")) {
           // If START appears as first directive the location counter is moved for the first symbol
-          if(*instructionNumber == 0) {
+          if(*nonComments== 0) {
               // Verify START directive is provided valid hexidecimal address
               if (get_address(&p, locationCounter)) {
                   if(pass == 1) {
@@ -88,7 +89,6 @@ int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, 
               return 0;
           }
       } else if(same_word(inst, "BYTE")) {
-          printf("remainder of line is--- %s\n", p);
           // Verify BYTE directive is provided valid character or hex constant
           if(get_constant(&p, constant, &size)) {
               *locationCounter += size;
@@ -98,6 +98,7 @@ int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, 
               return 0;
           }
       } else if(same_word(inst, "WORD")) {
+          int integer;  // will be stored in the word
           // Verify WORD directive is provided valid integer value
           if(get_integer(&p, &integer)) {
               if(integer >= -8388608 && integer <= 8388607) {
@@ -117,18 +118,20 @@ int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, 
               return 0;
           }
       } else if(same_word(inst, "RESB")) {
+          int numBytes;
           // Verify RESB directive is provided valid integer value
-          if(get_integer(&p, &integer)) {
-              *locationCounter += integer;
+          if(get_integer(&p, &numBytes)) {
+              *locationCounter += numBytes;
           } else {
               print_error(line, lineNumber, "RESB directive was not provided valid number of bytes.");
               dangle_free((void**)&inst);
               return 0;
           }
       } else if(same_word(inst, "RESW")) {
+          int numWords;
           // Verify RESW directive is provided valid integer value
-          if(get_integer(&p, &integer)) {
-              *locationCounter += (integer * 3);
+          if(get_integer(&p, &numWords)) {
+              *locationCounter += (numWords * 3);
           } else {
               print_error(line, lineNumber, "RESW directive was not provided valid number of words.");
               dangle_free((void**)&inst);
@@ -137,6 +140,7 @@ int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, 
       } else if(same_word(inst, "END")) {
           char* label = get_token(&p);
           // If no label is present the program begins at the start directive location
+          // I think this error handling might be better handled in pass2
           if(label == NULL || label[0] == '#') {
               ;
           }
@@ -150,31 +154,50 @@ int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, 
           dangle_free((void**)&label);
           *endFlag = 1;
       }
-      if (pass == 2) {
-          write_record(obj, *table,  symbol, inst, address, constant, size);
-      }
   // Instructions increment location counter by 3 bytes
   } else if(is_instruction(inst)) {
-      *locationCounter += 3;
-      dangle_free((void**)&inst);
-      return 1;
-      // Print error for invalid instruction/directive
+      if (*instructionNumber == 0) {
+          printf("first Instruction at %06x\n", address);
+          *firstInstruction = address;
+      }
+      (*instructionNumber)++;
+      size = 3;
+      *locationCounter += size;
+      operand = get_token(&p);
+      
+      if(pass == 2) {
+          if(!parse_operand(*table, operand, &op_address)) {
+              dangle_free((void**)&symbol);
+              dangle_free((void**)&operand);
+              dangle_free((void**)&inst);
+              return 0;
+          }
+          *mod_table = insert_mrecord(*mod_table, address + 1);
+      }
+  // Print error for invalid instruction/directive
   } else {
       snprintf(msg, sizeof(msg), "%s is not a valid instruction or directive.", inst);
       print_error(line, lineNumber, msg);
+      dangle_free((void**)&symbol);
       dangle_free((void**)&inst);
       return 0;
+  }
+  if (pass == 2) {
+      write_record(obj, *table, *mod_table, symbol, inst, address, constant, size, op_address);
   }
 
   // Verify line only has one operand and optional comment
   if (*p != '#' && *p != '\0') {
       printf("%c\n",*p);
       print_error(line, lineNumber, "Line has too many operands.");
+      dangle_free((void**)&symbol);
       dangle_free((void**)&inst);
       return 0;
   }
 
-  (*instructionNumber)++; // We've seen an instruction
+  (*nonComments)++; // We've seen a valid line
+  dangle_free((void**)&symbol);
   dangle_free((void**)&inst);
+  dangle_free((void**)&operand);
   return 1;
 }

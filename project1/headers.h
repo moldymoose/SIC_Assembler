@@ -15,8 +15,14 @@ typedef struct symbol {
     int sourceline;
     struct symbol* next;
 } SYMBOL;
-
 typedef SYMBOL* SYMTAB;
+
+typedef struct mod_record {
+    int start_address;
+    struct mod_record* next;
+} MOD_RECORD;
+typedef MOD_RECORD* MODTAB;
+
 
 SYMTAB insert_symbol(SYMTAB table, char name[7], int addr, int srcline);
 
@@ -24,7 +30,7 @@ void print_table(SYMTAB table);
 
 void destroy_table(SYMTAB* table);
 
-int symbol_exists(SYMTAB table, char name[7]);
+SYMBOL* symbol_exists(SYMTAB table, char name[7]);
 
 int is_directive(char token[7]);
 
@@ -36,7 +42,7 @@ int get_address(char** line, int* address);
 
 int get_constant(char** line, char* constant, int* size);
 
-int parse_line(SYMTAB* table, char* line, int lineNumber, int* locationCounter, int* instructionNumber, int* endFlag, FILE* obj, int pass);
+int parse_line(SYMTAB* table, MODTAB* mod_table, char* line, int lineNumber, int* locationCounter, int* numComments, int* instructionNumber, int* firstInstruction, int* endFlag, FILE* obj, int pass);
 
 void print_error(char* line, int line_number, char* msg);
 
@@ -48,16 +54,26 @@ void strip_newline(char* line);
 
 void dangle_free(void** ptr);
 
-int get_program_start(SYMTAB table);
+SYMBOL* get_program_start(SYMTAB table);
 
-int get_program_end(SYMTAB table);
+SYMBOL* get_program_end(SYMTAB table);
 
 int get_program_length(SYMTAB table);
 
-void write_record(FILE* obj, SYMTAB table,  char* symbol, char* inst, int address, char* constant, int size);
+void write_record(FILE* obj, SYMTAB table, MODTAB mods,  char* symbol, char* inst, int address, char* constant, int size, int op_address);
 
 void string_to_hex(char* constant, char* string);
 
 char *toAscii(const char *string);
+
+int get_opcode(char* instruction);
+
+int parse_operand(SYMTAB table, char* operand, int* op_address);
+
+MODTAB insert_mrecord(MODTAB table, int addr);
+
+void print_mod_table(FILE* obj, MODTAB table, SYMBOL* start);
+
+void print_erecord(FILE* obj, int firstInstruction);
 
 #endif
