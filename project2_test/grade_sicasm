@@ -1,5 +1,4 @@
 #!/usr/bin/sh
-cp ../p2sic/*.sic . -f
 
 echo ----------------------------------------------------------------
 echo ----------------------------------------------------------------
@@ -11,47 +10,47 @@ echo
 echo
 echo ----------------------------------------------------------------
 echo Testing with Correct SIC Assembly
-sicasm test21.sic
+sicasm-nocombined test21.sic
 
 echo ----------TEST 21 Object File-------------------------------------------
 cat test21.sic.obj
 echo ----------------------------------------------------------------
 echo Testing case 2  SIC Program to copy a string using indexed addressing
-sicasm test22.sic
+sicasm-nocombined test22.sic
 echo ----------TEST 22 Object File-------------------------------------------
 
 cat test22.sic.obj
 echo ----------------------------------------------------------------
 echo Testing case 3  SIC Program Has  Invalid Hex Constant  
-sicasm test23.sic
+sicasm-nocombined test23.sic
 echo ----------------------------------------------------------------
 echo Testing case 4  SIC Program HasSymbol Name that is an assembler Directive BYTE 
-sicasm test24.sic
+sicasm-nocombined test24.sic
 echo ----------------------------------------------------------------
 echo Testing case 5  SIC Program Missing START DIRECTIVE   
-sicasm test25.sic
+sicasm-nocombined test25.sic
 cat test25.sic.obj
 echo ----------------------------------------------------------------
 echo Testing case 6  Long Byte Constant that is ok.  Has undefined symbol, Pass 2 should stop  
-sicasm test26.sic
+sicasm-nocombined test26.sic
 echo ----------------------------------------------------------------
 echo Testing case 7 
-sicasm test27.sic
+sicasm-nocombined test27.sic
 echo ----------TEST 27 Object File-------------------------------------------
 cat test27.sic.obj
 echo ----------------------------------------------------------------
 echo Testing case 8
-sicasm test28.sic
+sicasm-nocombined test28.sic
 echo ----------TEST 28 Object File-------------------------------------------
 cat test28.sic.obj
 echo ----------------------------------------------------------------
 echo Testing case 9   
-sicasm test29.sic
+sicasm-nocombined test29.sic
 echo ----------TEST 29 Object File-------------------------------------------
 cat test29.sic.obj
 echo ----------------------------------------------------------------
 echo Testing case 10  
-sicasm test30.sic
+sicasm-nocombined test30.sic
 echo ----------TEST 30 Object File-------------------------------------------
 cat test30.sic.obj
 
