@@ -18,6 +18,6 @@ void write_record(FILE* obj, SYMTAB table, MODTAB mods, char* symbol, char* inst
             fprintf(obj, "T%06X%02X%.60s\n",address,size,string);
         }
     } else if (is_instruction(inst)) {
-        fprintf(obj, "T%06X%02X%02X%0X\n",address,size,get_opcode(inst), op_address);
+        fprintf(obj, "T%06X%02X%02X%04X\n",address,size,get_opcode(inst), op_address);
     }
 }

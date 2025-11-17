@@ -23,4 +23,8 @@ int get_opcode(char* instruction) {
     if(same_word(instruction, "STX")) return 0x10;
     if(same_word(instruction, "SUB")) return 0x1C;
     if(same_word(instruction, "TIX")) return 0x2C;
+    if(same_word(instruction, "RD")) return 0xD8;
+    if(same_word(instruction, "STSW")) return 0xE8;
+    if(same_word(instruction, "TD")) return 0xE0;
+    if(same_word(instruction, "WD")) return 0xDC;
 }

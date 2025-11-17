@@ -1,0 +1,11 @@
+=== SIC Assembler Pass 2 Documentation ===
+
+Much of the functionality remains the same between pass 1 and 2 with the exception that main.c
+does an addition run through the .sic file using parse_line.c
+
+parse_line.c has been updated with aditional logic to accept a flag identifying which pass logic
+to use.  pass 2 skips adding symbols to the symbol table and instead references the symbol table
+to construct object file using the new write_record.c function.
+
+a MODTAB structure has been created to store modification records and is passed into a
+print_mod_table function to print the mod records following the text records.
